@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+	<data>
+		<record id="reportes_report_general_libro_mayor_view" model="ir.ui.view">
+			<field name="name">libro_mayor</field>
+			<field name="model">tecnop.prueba2</field>
+			<field name="arch" type="xml">
+				<tree string="Libro mayor">
+					
+					<field name="prueba1"></field>
+				</tree>
+			</field>
+		</record>
+		
+		<record id="reportes_report_general_libro_mayor_view" model="ir.ui.view">
+			<field name="name">libro_mayor</field>
+			<field name="model">tecnop.prueba2</field>
+			<field name="arch" type="xml">
+				<form string="Libro mayor">
+					<header>
+						<button name="prueba" string="Imprimir" type="object" default_focus="1" class="oe_highlight"/>
+						<button string="Cancelar" class="oe_link" special="cancel"/>
+					</header>
+					<field name="prueba1"></field>
+				</form>
+			</field>
+		</record>
+
+		<record model="ir.actions.act_window" id="boton_reporte_libro_mayor">
+			<field name="name">Imprimir - Libro mayor</field>
+			<field name="res_model">tecnop.prueba2</field>
+			<field name="view_type">form</field>
+			<field name="view_mode">tree,form</field>
+		</record>
+			
+		<menuitem name="Libro mayor" id="submenu_libro_mayor" action="boton_reporte_libro_mayor" parent="submenu_principal" sequence="10"/> <!-- 11 -->
+	</data>
+</openerp>
+
+<!-- FALTA MODEL -->

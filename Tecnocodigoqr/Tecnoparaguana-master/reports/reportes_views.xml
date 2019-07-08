@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+	<data>
+		<report
+		id="reporte_libro_mayor"
+		string="Libro mayor"
+		model="report_general_libro_mayor"
+		report_type="qweb-pdf"
+		file="reports.reporte_cuentas_libro_mayor"
+		name="reports.reporte_cuentas_libro_mayor"
+		menu="True"
+		/>
+	</data>
+</openerp>
+<!-- FALTA MODEL -->

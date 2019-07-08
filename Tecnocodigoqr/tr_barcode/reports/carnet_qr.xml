@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<openerp>
+    <data>
+        <report id="carnet_qr_users_report"
+         string="Carnet"
+         model="res.users" 
+         report_type="qweb-pdf" 
+         file="carnet" 
+         name="tr_barcode.carnet" 
+         menu="True"/>
+            
+    </data>
+</openerp>

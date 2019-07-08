@@ -1,0 +1,47 @@
+<?xml version="1.0"?>
+<openerp>
+    <data>
+        <template id="tr_barcode.carnet" name="carnet_user">
+            <t t-call="report.html_container">
+                <t t-foreach="docs" t-as="o">
+                    <t t-call="report.external_layout">
+                        <div class="page">
+                            <table style="position:relative;left:260px;border:1px solid grey;text-align:center">
+                                <tr style="">
+                                    <td>
+                                        <h4> 
+                                            <span style="color:mediumseagreen">TECNO</span><span style="color:blue">PARAGUANÁ</span> 
+                                            <img t-attf-src="data:image/*;base64,{{o.logo_c}}" style="max-height:50px;width:50px;"/>
+                                        </h4>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <img t-attf-src="data:image/*;base64,{{o.image}}" style="max-height:160px;width:160px;margin-top:12px;;border-radius:80px"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="padding:5px">
+                                        <h3><strong><t t-esc="o.name"></t></strong></h3>
+                                    </td>
+                                </tr>
+                                <tr> 
+                                    <td style="padding:5px;color:grey">
+                                        <h4><strong>Email: <t t-esc="o.email"></t></strong></h4>
+                                    </td>
+                                    <br></br>
+                                    <span></span>
+                                </tr>
+                                <tr>
+                                    <td style="padding:10px">
+                                        <img t-attf-src="data:image/*;base64,{{o.image_qr}}" style="max-height:120px;width:120px;"/>
+                                    </td>
+                                </tr>
+                             </table>                           
+                        </div>
+                    </t>
+                </t>
+            </t>
+        </template>
+    </data>
+</openerp>

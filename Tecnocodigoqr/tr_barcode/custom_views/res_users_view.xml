@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+	<data>
+		<record model="ir.ui.view" id="view_rif_user">
+			<field name="name">res.users.form</field>
+			<field name="model">res.users</field>
+			<field name="inherit_id" ref="base.view_users_form" />
+			<field name="type">form</field>
+			<field name="arch" type="xml">
+				<xpath expr="/form/sheet/notebook/page" position="after">
+                    <page string="Codigo QR">
+                        <group colspan="4" string="Datos del Usuario">
+                            <field name="code" string="Clave Especial" required="1"/>
+                            <field name="res_model" string="Modelo" invisible="1" select="1" readonly="1"/>
+                            <field name="res_id" invisible="1" select="1" readonly="1"/>
+                            <field name="barcode_type" string="Tipo" invisible="1" />
+                            <field name="width" invisible="1" string="Ancho"/>
+                            <field name="height" invisible="1" string="Alto"/>
+                            <button name="generate_image" string="Generar QR" type="object" icon="gtk-go-forward" colspan="2"/>
+                            <field name="image_qr" string=" " widget="image"/>
+                        </group>
+                        <group colspan="4" string="Personalizacion del carnet">
+                            <field name="logo_c" string="Logo de la compañia" widget="image"/>
+                        </group>
+                    </page>
+				</xpath>
+			</field>
+		</record>
+	</data>
+</openerp>							
+

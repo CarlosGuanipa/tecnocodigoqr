@@ -1,0 +1,46 @@
+<openerp>
+  <data>
+    <record id="view_tr_barcode_form" model="ir.ui.view">
+            <field name="name">tr.barcode.tree</field>
+            <field name="model">tr.barcode</field>
+            <field name="arch" type="xml">
+                <form string="Carreras">
+                    <group>
+                        <field name="code" string="Nombre" required="1" select="1"/>
+                        <field name="res_model" string="Modelo" invisible="1" select="1" readonly="1"/>
+                        <field name="res_id" invisible="1" select="1" readonly="1"/>
+                        <field name="barcode_type" string="Tipo" required="1"/>
+                        <field name="width" invisible="1" string="Ancho"/>
+                        <field name="height" invisible="1" string="Alto"/>
+                        <button name="generate_image" string="Generar QR" type="object" icon="gtk-go-forward" colspan="2"/>
+                        <field name="image" string="QR code" widget="image" readonly="1"/>
+                    </group>
+                </form>
+            </field>
+        </record>
+
+        <record id="view_tr_barcode_tree" model="ir.ui.view">
+            <field name="name">tr.barcode.form</field>
+            <field name="model">tr.barcode</field>
+            <field name="arch" type="xml">
+                <tree string="Codigos">
+                    <field name="code" string="Nombre" select="1"/>
+                    <field name="barcode_type" string="Tipo"/>
+                <!--<field name="" select="1"/> -->
+                <!--<field name="res_id" select="1"/>-->
+                </tree>
+            </field>
+        </record>
+
+        <record id="action_tr_barcode_form" model="ir.actions.act_window">
+            <field name="name">Carreras</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">tr.barcode</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+            <field name="view_id" ref="view_tr_barcode_tree"/>
+            <field name="help"></field>
+        </record>
+		
+  </data>
+</openerp>

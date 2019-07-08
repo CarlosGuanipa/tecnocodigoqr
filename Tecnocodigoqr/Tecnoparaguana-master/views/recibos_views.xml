@@ -1,0 +1,770 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+	<data>
+		
+		<!-- Vistas del módelo recibos -->
+		
+		<record id="view_recibos_form" model="ir.ui.view">
+			<field name="name">recibos_form</field> 
+			<field name="model">tecnop.recibos</field> 
+			<field name="arch" type="xml">
+				<form string="Movimientos">
+					<header>
+						<button name="empezarValidacion" string="Validar" type="object" class="oe_highlight"/>
+						<field name="estado" widget="statusbar"></field>
+					</header>
+					<sheet>
+						<group col="6">
+							<field name="num_recibo" attrs="{'readonly':[('veri', '=', True)]}"></field>
+							<field name="fecha" attrs="{'readonly':[('veri', '=', True)]}"></field>
+							<field name="movimiento" attrs="{'readonly':[('veri', '=', True)]}"></field>
+							<field name="id_cuenta" attrs="{'readonly':[('veri', '=', True)]}" widget="selection"></field>
+							<field name="veri" invisible="1"></field>
+							<field name="ids_proveedores" attrs="{'readonly':[('movimiento', '=', False) or ('veri', '=', True)], 'required':[('movimiento', '=', True)]}"></field>
+						</group>
+						<notebook>
+							<page string="Servicios">
+								<field name="ids_productos" on_change="calcular_total" attrs="{'readonly':[('veri', '=', True)]}"></field>
+							</page>
+						</notebook>
+						<group col="6">
+							<field name="total"></field>
+							<field name="subtotal"></field>
+							<field name="impuesto_total"></field>
+						</group>
+					</sheet>
+				</form>
+			</field>
+		</record>
+		
+		<record id="view_recibos_tree" model="ir.ui.view">
+			<field name="name">recibos_tree</field> 
+			<field name="model">tecnop.recibos</field> 
+			<field name="arch" type="xml">
+				<tree string="Apuntes contables">
+					<field name="num_recibo"/>
+                    <field name="ids_proveedores"/>
+                    <field name="fecha"/>
+                    <button name="escanear_codigo_qr" type="object" class="oe_i" string="Autenticar y eliminar"></button>
+				</tree>
+			</field>
+		</record>
+		
+		<!-- Vistas del módelo proveedores -->
+		
+		<record id="view_proveedores_form" model="ir.ui.view">
+			<field name="name">provedores_form</field> 
+			<field name="model">tecnop.proveedores</field> 
+			<field name="arch" type="xml">
+				<form string="Proveedores">
+					<header>
+					</header>
+					<group>
+						<field name="proveedor"></field>
+						<field name="num_id"></field>
+						<field name="direccion"></field>
+						<field name="telefono"></field>
+					</group>
+				</form>
+			</field>
+		</record>
+		
+		<record id="view_proveedores_tree" model="ir.ui.view">
+			<field name="name">proveedores_tree</field> 
+			<field name="model">tecnop.proveedores</field> 
+			<field name="arch" type="xml">
+				<tree string="Proveedores">
+					<field name="proveedor"></field>
+					<field name="num_id"></field>
+					<field name="direccion"></field>
+					<field name="telefono"></field>
+                    <button name="escanear_codigo_qr" type="object" class="oe_i" string="Autenticar y eliminar"></button>
+				</tree>
+			</field>
+		</record>
+		
+		<!-- Vistas del módelo productos -->
+		
+		<record id="view_productos_form" model="ir.ui.view">
+			<field name="name">productos_form</field> 
+			<field name="model">tecnop.productos</field> 
+			<field name="arch" type="xml">
+				<form string="Productos">
+					<group>
+						<field name="nombre"></field>
+						<field name="id_cuenta"></field>
+						<field name="cantidad"></field>
+						<field name="precio"></field>
+						<field name="id_impuesto"></field>
+						<field name="descripcion"></field>
+						<field name="concepto"></field>
+					</group>
+				</form>
+			</field>
+		</record>
+		
+		<record id="view_productos_tree" model="ir.ui.view">
+			<field name="name">productos_tree</field> 
+			<field name="model">tecnop.productos</field> 
+			<field name="arch" type="xml">
+				<tree editable="bottom" string="Productos">
+					<field name="nombre"></field>
+					<field name="descripcion"></field>
+					<field name="concepto"></field>
+					<field name="id_cuenta" widget="selection"></field>
+					<field name="cantidad"></field>
+					<field name="precio"></field>
+					<field name="impuesto"></field>
+					<field name="id_impuesto" widget="selection"></field>
+				</tree>
+			</field>
+		</record>
+		
+		<!-- Vistas del módelo impuestos -->
+		
+		<record id="view_impuestos_form" model="ir.ui.view">
+			<field name="name">impuestos_form</field> 
+			<field name="model">tecnop.impuestos</field> 
+			<field name="arch" type="xml">
+				<form string="Impuestos">
+					<group>
+						<field name="nombre"></field>
+						<field name="impuesto"></field>
+						<field name="id_cuenta"></field>
+					</group>
+				</form>
+			</field>
+		</record>
+		
+		<record id="view_impuestos_tree" model="ir.ui.view">
+			<field name="name">impuestos_tree</field> 
+			<field name="model">tecnop.impuestos</field> 
+			<field name="arch" type="xml">
+				<tree string="Impuestos">
+					<field name="nombre"></field>
+					<field name="impuesto"></field>
+					<field name="id_cuenta"></field>
+                    <button name="escanear_codigo_qr" type="object" class="oe_i" string="Autenticar y eliminar"></button>
+				</tree>
+			</field>
+		</record>
+		
+		<!-- Vistas del módelo cuentas -->
+		
+		<record id="view_cuentas_form" model="ir.ui.view">
+			<field name="name">cuentas_form</field> 
+			<field name="model">tecnop.cuentas</field> 
+			<field name="arch" type="xml">
+				<form string="Cuentas">
+				<header>
+					<button name="calcular_cuenta" string="Recorrer cuentas" type="object"/>
+				</header>
+					<group>
+						<field name="codigo"></field>
+						<field name="nombre"></field>
+						<field name="padre_id"></field>
+						<field name="tipo_interno"></field>
+						<field name="debe"></field>
+						<field name="haber"></field>
+						<field name="saldo"></field>
+					</group>
+				</form>
+			</field>
+		</record>
+		
+		<record id="view_cuentas_tree" model="ir.ui.view">
+			<field name="name">cuentas_tree</field> 
+			<field name="model">tecnop.cuentas</field> 
+			<field name="arch" type="xml">
+				<tree colors="blue:tipo_interno == 'vista';black:tipo_interno in ('regular','pagar','cobrar','liquidez','consolidacion');gray:tipo_interno == 'cierre'" string="Cuentas">
+					<field name="codigo"></field>
+					<field name="nombre"></field>
+					<field name="debe"></field>
+					<field name="haber"></field>
+					<field name="saldo"></field>
+					<field name="padre_id"></field>
+					<field name="tipo_interno"></field>
+                    <button name="escanear_codigo_qr" type="object" class="oe_i" string="Autenticar y eliminar"></button>
+				</tree>
+			</field>
+		</record>
+		
+		<!-- Vistas del módelo ejercicios fiscales -->
+		
+		<record id="view_ejfiscal_form" model="ir.ui.view">
+			<field name="name">ejfiscal_form</field> 
+			<field name="model">tecnop.ejfiscal</field> 
+			<field name="arch" type="xml">
+				<form string="Ejercicios fiscales">
+					<sheet>
+						<group>
+							<field name="nombre"></field>
+							<field name="codigo"></field>
+							<field name="fecha_inicio"></field>
+							<field name="fecha_final"></field>
+						</group>
+						<notebook>
+							<page string="Periodos">
+								<field name="ids_periodos"></field>
+							</page>
+						</notebook>
+					</sheet>
+				</form>
+			</field>
+		</record>
+		
+		<record id="view_ejfiscal_tree" model="ir.ui.view">
+			<field name="name">ejfiscal_tree</field> 
+			<field name="model">tecnop.ejfiscal</field> 
+			<field name="arch" type="xml">
+				<tree string="Ejercicios fiscales">
+					<field name="nombre"></field>
+					<field name="codigo"></field>
+					<field name="fecha_inicio"></field>
+					<field name="fecha_final"></field>
+				</tree>
+			</field>
+		</record>
+		
+		<!-- Vistas del módelo periodos -->
+		
+		<record id="view_periodos_form" model="ir.ui.view">
+			<field name="name">periodos_form</field> 
+			<field name="model">tecnop.periodos</field> 
+			<field name="arch" type="xml">
+				<form string="Periodos">
+					<sheet>
+						<group>
+							<field name="nombre"></field>
+							<field name="codigo"></field>
+							<field name="fecha_inicio"></field>
+							<field name="fecha_final"></field>
+							<field name="id_periodo"></field>
+						</group>
+					</sheet>
+				</form>
+			</field>
+		</record>
+		
+		<record id="view_periodos_tree" model="ir.ui.view">
+			<field name="name">periodos_tree</field> 
+			<field name="model">tecnop.periodos</field> 
+			<field name="arch" type="xml">
+				<tree string="Periodos">
+					<field name="nombre"></field>
+					<field name="codigo"></field>
+					<field name="fecha_inicio"></field>
+					<field name="fecha_final"></field>
+					<field name="id_periodo"></field>
+				</tree>
+			</field>
+		</record>
+		
+		<!-- Vistas del módelo asientos contables -->
+		
+		<record id="view_asientos_form" model="ir.ui.view">
+			<field name="name">asientos_form</field> 
+			<field name="model">tecnop.asientos</field> 
+			<field name="arch" type="xml">
+				<form string="Asientos contables">
+					<header>
+						<field name="estado" widget="statusbar"></field>
+					</header>
+					<sheet>
+						<group>
+							<field name="referencia" attrs="{'readonly':[('estado','=','si')]}"></field>
+							<field name="fecha" attrs="{'readonly':[('estado','=','si')]}"></field>
+							<field name="id_periodo" attrs="{'readonly':[('estado','=','si')]}"></field>
+						</group>
+						<notebook>
+							<page string="Asientos contables">
+								<field name="ids_asientos" attrs="{'readonly':[('estado','=','si')]}" widget="one2many_list"></field>
+							</page>
+						</notebook>
+						<group col="4">
+							<field name="debe_a"></field>
+							<field name="haber_a"></field>
+						</group>
+					</sheet>
+				</form>
+			</field>
+		</record>
+		
+		<record id="view_asientos_tree" model="ir.ui.view">
+			<field name="name">asientos_tree</field> 
+			<field name="model">tecnop.asientos</field> 
+			<field name="arch" type="xml">
+				<tree string="Asientos contables">
+					<field name="referencia"></field>
+					<field name="fecha"></field>
+					<field name="id_periodo"></field>
+					<field name="ids_asientos"></field>
+                    <button name="escanear_codigo_qr" type="object" class="oe_i" string="Autenticar y eliminar"></button>
+				</tree>
+			</field>
+		</record>
+		
+		<!-- Vistas del módelo apuntes contables -->
+		
+		<record id="view_apuntes_form" model="ir.ui.view">
+			<field name="name">apuntes_form</field> 
+			<field name="model">tecnop.apuntes</field> 
+			<field name="arch" type="xml">
+				<form string="Apuntes contables">
+					<sheet>
+						<group>
+							<field name="nombre"></field>
+							<field name="id_asiento"></field>
+							<field name="debe"></field>
+							<field name="haber"></field>
+							<field name="id_cuenta"></field>
+						</group>
+					</sheet>
+				</form>
+			</field>
+		</record>
+		
+		<record id="view_apuntes_tree" model="ir.ui.view">
+			<field name="name">apuntes_tree</field> 
+			<field name="model">tecnop.apuntes</field> 
+			<field name="arch" type="xml">
+				<tree editable="bottom" string="Apuntes contables">
+					<field name="nombre"></field>
+					<field name="id_asiento" invisible="1"></field>
+					<field name="debe"></field>
+					<field name="haber"></field>
+					<field name="id_cuenta"></field>
+                    <button name="escanear_codigo_qr" type="object" class="oe_i" string="Autenticar y eliminar"></button>
+				</tree>
+			</field>
+		</record>
+		
+		<!-- Vista de módelo de reporte de libro mayor -->
+		
+		<record id="view_reportes_form2" model="ir.ui.view">
+			<field name="name">reportes_form</field> 
+			<field name="model">report.tecnop.reportes_w</field> 
+			<field name="arch" type="xml">
+				<form string="Libro mayor">
+					<group>
+						<field name="ids_ej" widget="selection"></field>
+					</group>
+					<footer>
+						<button name="view_report_button" string="Imprimir" type="object" default_focus="1" class="oe_highlight"/>
+						o
+						<button string="Cerrar" class="oe_link" special="cancel"/>
+					</footer>
+				</form>
+			</field>
+		</record>
+		
+		<!-- Vista de módelo de balance de sumas y saldos -->
+		
+		<record id="view_reportes_form3" model="ir.ui.view">
+			<field name="name">reportes_form</field> 
+			<field name="model">report.tecnop.sumas_y_saldos</field> 
+			<field name="arch" type="xml">
+				<form string="Balance de sumas y saldos">
+					<group>
+						<field name="ids_ej" widget="selection"></field>
+					</group>
+					<footer>
+						<button name="view_report_button" string="Imprimir" type="object" default_focus="1" class="oe_highlight"/>
+						o
+						<button string="Cerrar" class="oe_link" special="cancel"/>
+					</footer>
+				</form>
+			</field>
+		</record>
+		
+		<!-- Vista de módelo de pérdidas y ganancias -->
+		
+		<record id="view_reportes_form4" model="ir.ui.view">
+			<field name="name">reportes_form</field> 
+			<field name="model">report.tecnop.perdidas_y_ganancias</field> 
+			<field name="arch" type="xml">
+				<form string="Pérdidas y ganancias">
+					<footer>
+						<button name="view_report_button" string="Imprimir" type="object" default_focus="1" class="oe_highlight"/>
+						o
+						<button string="Cerrar" class="oe_link" special="cancel"/>
+					</footer>
+				</form>
+			</field>
+		</record>
+		
+		<!-- Vista de módelo de confirmación -->
+		
+		<record id="confirmacion_form" model="ir.ui.view">
+			<field name="name">confirmacion_form</field> 
+			<field name="model">confirmacion</field> 
+			<field name="arch" type="xml">
+				<form string="Confirmación">
+					<separator string="¿Está seguro de que desea validar este movimiento o recibo?" colspan="4"/>
+					<h3>Haga clic en la casilla y luego presione el botón confirmar para continuar</h3>
+					<h3>   <field name="confirmar"></field></h3>
+					<footer>
+						<button name="empezarVali" string="Validar" type="object" icon="terp-check"/>
+						<button string="Cerrar" special="cancel" icon="terp-gtk-stop"/>
+					</footer>
+				</form>
+			</field>
+		</record>
+		
+		<!-- 1. Botón de recibos -->
+		<record model="ir.actions.act_window" id="boton_recibos">
+			<field name="name">Movimientos</field>
+			<field name="res_model">tecnop.recibos</field>
+			<field name="view_type">form</field>
+			<field name="view_mode">tree,form</field>
+		</record>
+		
+		<!-- 2. Botón de proveedores -->
+		<record model="ir.actions.act_window" id="boton_proveedores">
+			<field name="name">Proveedores</field>
+			<field name="res_model">tecnop.proveedores</field>
+			<field name="view_type">form</field>
+			<field name="view_mode">tree,form</field>
+		</record>
+		
+		<!-- 3. Botón de impuestos -->
+		<record model="ir.actions.act_window" id="boton_impuestos">
+			<field name="name">Impuestos</field>
+			<field name="res_model">tecnop.impuestos</field>
+			<field name="view_type">form</field>
+			<field name="view_mode">tree,form</field>
+		</record>
+		
+		<!-- 4. Botón de cuentas -->
+		<record model="ir.actions.act_window" id="boton_cuentas">
+			<field name="name">Cuentas</field>
+			<field name="res_model">tecnop.cuentas</field>
+			<field name="view_type">form</field>
+			<field name="view_mode">tree,form</field>
+		</record>
+		
+		<!-- 5. Botón de productos -->
+		<record model="ir.actions.act_window" id="boton_productos">
+			<field name="name">Cuentas</field>
+			<field name="res_model">tecnop.productos</field>
+			<field name="view_type">form</field>
+			<field name="view_mode">tree,form</field>
+		</record>
+		
+		<!-- 6. Botón de ejercicios fiscales -->
+		<record model="ir.actions.act_window" id="boton_ejfiscal">
+			<field name="name">Ejercicios fiscales</field>
+			<field name="res_model">tecnop.ejfiscal</field>
+			<field name="view_type">form</field>
+			<field name="view_mode">tree,form</field>
+		</record>
+		
+		<!-- 7. Botón de periodos -->
+		<record model="ir.actions.act_window" id="boton_periodos">
+			<field name="name">Periodos</field>
+			<field name="res_model">tecnop.periodos</field>
+			<field name="view_type">form</field>
+			<field name="view_mode">tree,form</field>
+		</record>
+		
+		<!-- 9. Botón de asientos contables -->
+		<record model="ir.actions.act_window" id="boton_asientos">
+			<field name="name">Asientos contables</field>
+			<field name="res_model">tecnop.asientos</field>
+			<field name="view_type">form</field>
+			<field name="view_mode">tree,form</field>
+		</record>
+		
+		<!-- 10. Botón de apuntes contables -->
+		<record model="ir.actions.act_window" id="boton_apuntes">
+			<field name="name">Apuntes contables</field>
+			<field name="res_model">tecnop.apuntes</field>
+			<field name="view_type">form</field>
+			<field name="view_mode">tree,form</field>
+		</record>
+		
+		<!-- 11. Botón de reporte de libro mayor -->
+		<record model="ir.actions.act_window" id="boton_r">
+			<field name="name">Libro mayor</field>
+			<field name="type">ir.actions.act_window</field>
+			<field name="res_model">report.tecnop.reportes_w</field>
+			<field name="view_type">form</field>
+			<field name="view_mode">form</field>
+			<field name="target">new</field>
+		</record>
+		
+		<!-- 12. Botón de reporte de balance de sumas y saldos -->
+		<record model="ir.actions.act_window" id="boton_balance_y_sumas">
+			<field name="name">Balance de sumas y saldos</field>
+			<field name="type">ir.actions.act_window</field>
+			<field name="res_model">report.tecnop.sumas_y_saldos</field>
+			<field name="view_type">form</field>
+			<field name="view_mode">form</field>
+			<field name="target">new</field>
+		</record>
+		
+		<!-- 13. Botón de reporte de pérdidas y ganancias -->
+		<record model="ir.actions.act_window" id="boton_perdidas_y_ganancias">
+			<field name="name">Pérdidas y ganancias</field>
+			<field name="type">ir.actions.act_window</field>
+			<field name="res_model">report.tecnop.perdidas_y_ganancias</field>
+			<field name="view_type">form</field>
+			<field name="view_mode">form</field>
+			<field name="target">new</field>
+		</record>
+		
+		<!-- 14. Botón de confirmación -->
+		<record model="ir.actions.act_window" id="boton_confi">
+			<field name="name">Confirmación</field>
+			<field name="type">ir.actions.act_window</field>
+			<field name="res_model">confirmacion</field>
+			<field name="view_type">form</field>
+			<field name="view_mode">form</field>
+			<field name="target">new</field>
+		</record>
+		
+		<menuitem name="Contabilidad" id="menu_principal" sequence="10"/>
+		<menuitem name="Opciones" id="submenu_principal" parent="menu_principal" sequence="10"/>
+		<menuitem name="Movimientos" id="submenu_recibos" action="boton_recibos" parent="submenu_principal" sequence="10"/> <!-- 1 -->
+		<!--<menuitem name="Apuntes contables" id="submenu_apuntes" action="boton_apuntes" parent="submenu_configuracion" sequence="10"/> -->
+		<!--<menuitem name="Asientos contables" id="submenu_asientos" action="boton_asientos" parent="submenu_configuracion" sequence="10"/> -->
+		<menuitem name="Configuración" id="submenu_configuracion" parent="submenu_principal" sequence="10"/>
+		<menuitem name="Proveedores" id="submenu_proveedores" action="boton_proveedores" parent="submenu_configuracion" sequence="10"/> <!-- 2 -->
+		<menuitem name="Impuestos" id="submenu_impuestos" action="boton_impuestos" parent="submenu_configuracion" sequence="10"/> <!-- 3 -->
+		<menuitem name="Cuentas" id="submenu_cuentas" action="boton_cuentas" parent="submenu_configuracion" sequence="10"/> <!-- 4 -->
+		<menuitem name="Periodos" id="submenu_periodos_ejercicios_fiscales" parent="submenu_configuracion" sequence="10"/> <!-- Submenu -->
+		<menuitem name="Ejercicios fiscales" id="submenu_ejfiscal" action="boton_ejfiscal" parent="submenu_periodos_ejercicios_fiscales" sequence="10"/> <!-- 6 -->
+		<menuitem name="Periodos" id="submenu_periodos" action="boton_periodos" parent="submenu_periodos_ejercicios_fiscales" sequence="10"/> <!-- 7 -->
+        <menuitem name="Informes" id="submenu_informes" parent="submenu_principal" sequence="10"/> -->
+        <menuitem name="Libro mayor" id="submenu_reportes" action="boton_r" parent="submenu_informes" sequence="10"/>
+        <menuitem name="Balance de sumas y saldos" id="submenu_balance_y_sumas" action="boton_balance_y_sumas" parent="submenu_informes" sequence="10"/> 
+		<menuitem name="Pérdidas y ganancias" id="submenu_perdidas_y_ganancias" action="boton_perdidas_y_ganancias" parent="submenu_informes" sequence="10"/> 
+	
+	<!-- TEMPLATE DE REPORTES: MOVIMIENTOS O RECIBOS -->
+		
+		<report
+			id="reporte_movimientos"
+			string="Movimientos y recibos"
+			model="tecnop.recibos"
+			report_type="qweb-pdf"
+			file="tecnop.movimientos"
+			name="tecnop_movimientos"
+			menu="True"
+			/>
+		
+		<template id="tecnop_movimientos" name="Reporte de Movimiento">
+			<t t-call="report.html_container">
+				<t t-set="data_report_margin_top" t-value="12"/>
+				<t t-set="data_report_header_spacing" t-value="9"/>
+				<t t-set="data_report_dpi" t-value="110"/>
+				<t t-foreach="docs" t-as="o">
+					<div class="page">
+						<h1>Asociación Cooperativa Tecnoparaguana</h1>
+						<h3><t t-esc="o.nombre"></t></h3>
+						<table class="table">
+							<thead>
+								<tr>
+									<th>Número de Reporte</th>
+									<th>Cuenta</th>
+									<th>Fecha</th>
+									<t t-if="o.ids_proveedores.proveedor != False">
+										<th>Proveedor</th>
+									</t>
+								</tr>
+							</thead>
+							<tbody>
+								<tr>
+									<td><t t-esc="o.num_recibo"></t></td>
+									<td><t t-esc="o.id_cuenta.nombre"></t></td>
+									<td><t t-esc="o.fecha"></t></td>
+									<t t-if="o.ids_proveedores.proveedor != False">
+										<td><t t-esc="o.ids_proveedores.proveedor"></t></td>
+									</t>
+								</tr>
+							</tbody>
+						</table>
+						<table class="table">
+							<thead>
+								<tr>
+									<th>Nombre</th>
+									<th>Descripción</th>
+									<th>Concepto</th>
+									<th>Cuenta</th>
+									<th>Cantidad</th>
+									<th>Precio</th>
+									<th>Impuesto</th>
+									<th>Impuesto %</th>
+								</tr>
+							</thead>
+							<tbody>
+								<t t-foreach="o.ids_productos" t-as="p">
+									<tr>
+										<td><t t-esc="p.nombre"></t></td>
+										<td><t t-esc="p.descripcion"></t></td>
+										<td><t t-esc="p.concepto"></t></td>
+										<td><t t-esc="p.id_cuenta.nombre"></t></td>
+										<td><t t-esc="p.cantidad"></t></td>
+										<td><t t-esc="p.precio"></t></td>
+										<td><t t-esc="p.impuesto"></t></td>
+										<td><t t-esc="p.id_impuesto.nombre"></t></td>
+									</tr>
+								</t>
+							</tbody>
+						</table>
+						<table class="table">
+							<thead>
+								<tr>
+									<th><b>Subtotal:</b> <t t-esc="o.subtotal"></t> Bs.S</th>
+									<th><b>Impuesto:</b> <t t-esc="o.impuesto_total"></t> Bs.S</th>
+									<th><b>Total:</b> <t t-esc="o.total"></t> Bs.S</th>
+								</tr>
+							</thead>
+						</table>
+					</div>
+				</t>
+			</t>
+		</template>
+		
+		
+		<!-- TEMPLATE DE LOS REPORTES: LIBRO MAYOR -->
+		
+		<report
+			id="tecnop_reporte_wizard"
+			string="Libro mayor"
+			model="report.tecnop.reportes"
+			report_type="qweb-html"
+			file="tecnop.reportes"
+			name="tecnop_reportes_w"
+			menu="False"
+			/>
+		
+		<template id="tecnop_reportes_w">
+			<t t-call="report.html_container">
+				<t t-set="data_report_margin_top" t-value="12"/>
+				<t t-set="data_report_header_spacing" t-value="9"/>
+				<t t-set="data_report_dpi" t-value="110"/>
+				<div class="page">
+					<h1 style="font-weight: bold">Asociación Cooperativa Tecnoparaguana</h1>
+					<h2 style="font-weight: bold">Libro Mayor</h2>
+					<h4>Ejercicio Fiscal: <t t-esc="fiscal.nombre"></t></h4>
+					<table class="table">
+						<thead>
+							<tr>
+								<th>Fecha</th>
+								<th>Referencia</th>
+								<th>Etiqueta</th>
+								<th>Contrapartida</th>
+								<th>Debe</th>
+								<th>Haber</th>
+								<th>Saldo</th>
+								</tr>
+						</thead>
+						<tbody>
+							<tr>
+								<t t-foreach="cuentas" t-as="cuenta">
+									<t t-if="cuenta.saldo != 0">
+										<td style="font-weight: bold">
+											<t t-esc="cuenta.codigo"></t>
+											<t t-esc="cuenta.nombre"></t>
+										</td>
+										<td></td>
+										<td></td>
+										<td></td>
+										<td style="font-weight: bold"><t t-esc="cuenta.debe"></t> Bs.S</td>
+										<td style="font-weight: bold"><t t-esc="cuenta.haber"></t> Bs.S</td>
+										<td style="font-weight: bold"><t t-esc="cuenta.saldo"></t> Bs.S</td>
+									</t>
+									<t t-foreach="asientos" t-as="apunte">
+										<t t-foreach="apunte.ids_asientos" t-as="apuntes_asientos">
+											<t t-foreach="apuntes_asientos.id_cuenta" t-as="cuenta_a">
+												<t t-if="cuenta_a.id == cuenta.id">
+													<tr>
+														<td><t t-esc="apunte.fecha"></t></td>
+														<td><t t-esc="apunte.referencia"></t></td>
+														<td><t t-esc="apuntes_asientos.nombre"></t></td>
+														<td>
+															<t t-foreach="asientos" t-as="apuntes">
+																<t t-foreach="apuntes.ids_asientos" t-as="contrapartida">
+																	<t t-if="apuntes.id == apunte.id">
+																		<t t-if="contrapartida.id_cuenta.nombre != cuenta.nombre">
+																			<t t-esc="contrapartida.id_cuenta.codigo"></t>
+																		</t>
+																	</t>
+																</t>
+															</t>
+														</td>
+														<td><t t-esc="apuntes_asientos.debe"></t> Bs.S</td>
+														<td><t t-esc="apuntes_asientos.haber"></t> Bs.S</td>
+														<td><t t-esc="apuntes_asientos.saldo"></t> Bs.S</td>
+													</tr>
+												</t>
+											</t>
+										</t>
+									</t>
+								</t>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+			</t>
+		</template>
+		
+		<report
+			id="tecnop_reporte_balance_sumas_saldos"
+			string="Balance de sumas y saldos"
+			model="report.tecnop.balanceysumas"
+			report_type="qweb-html"
+			file="tecnop.sumas_y_saldos"
+			name="tecnop_sumas_y_saldos"
+			menu="False"
+			/>
+			
+		<template id="tecnop_sumas_y_saldos">
+			<t t-call="report.html_container">
+				<t t-set="data_report_margin_top" t-value="12"/>
+				<t t-set="data_report_header_spacing" t-value="9"/>
+				<t t-set="data_report_dpi" t-value="110"/>
+				<div class="page">
+					<h1 style="font-weight: bold">Asociación Cooperativa Tecnoparaguana</h1>
+					<h2 style="font-weight: bold">Balance de sumas y saldos</h2>
+					<h4>Ejercicio Fiscal: <t t-esc="fiscal.nombre"></t></h4>
+					<table class="table">
+						<thead>
+							<tr>
+								<th>Codigo</th>
+								<th>Cuenta</th>
+								<th>Debe</th>
+								<th>Haber</th>
+								<th>Saldo</th>
+							</tr>
+						</thead>
+						<tbody>
+							<t t-foreach="cuentas" t-as="cuenta">
+								<t t-if="cuenta.debe != 0 or cuenta.haber != 0 or cuenta.saldo != 0">
+									<t t-if="cuenta.tipo_interno == 'vista'">
+										<tr style="font-weight: bold">
+											<td><t t-esc="cuenta.codigo"></t></td>
+											<td><t t-esc="cuenta.nombre"></t></td>
+											<td><t t-esc="cuenta.debe"></t></td>
+											<td><t t-esc="cuenta.haber"></t></td>
+											<td><t t-esc="cuenta.saldo"></t></td>
+										</tr>
+									</t>
+										<t t-if="cuenta.tipo_interno != 'vista'">
+											<tr>
+												<td><t t-esc="cuenta.codigo"></t></td>
+												<td><t t-esc="cuenta.nombre"></t></td>
+												<td><t t-esc="cuenta.debe"></t></td>
+												<td><t t-esc="cuenta.haber"></t></td>
+												<td><t t-esc="cuenta.saldo"></t></td>
+											</tr>
+										</t>
+									</t>
+								</t>
+						</tbody>
+					</table>
+				</div>
+			</t>
+		</template>
+	</data>
+</openerp>
